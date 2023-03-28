@@ -12,9 +12,10 @@ The data and source code must be structured as follows:
             ├── eminist-balanced-test-images-idx3-ubyte.gz
             ├── eminist-balanced-test-labels-idx1-ubyte.gz
     │   └── mapping
-            ├── emnist-balanced-mapping.txt
+            └── emnist-balanced-mapping.txt
     ├── src
-        └── letters_classifier.py
+    │   ├── emnist_utils.py
+        └── datacontainer.py
     └──....
 
 __Note: The notebook emnist_overview.ipynb should not be modified.
