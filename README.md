@@ -1,4 +1,11 @@
-# Letters classifier using Scikit-learn
+# EMNIST Letter classification using Scikit-learn
+
+## Course EE3021 - Semester 222: Report files
+1. The report pdf file path: letters_classifier/emnist_final_report.pdf
+2. The source code path: letters_classifier/src
+3. The jupyter notebooks path: letters_classifier/notebooks
+4. The data used in this project is in: letters_classifier/data
+
 ## Setup working project
 Create Pycharm scientific project and config conda environment.
 
