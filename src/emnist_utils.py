@@ -13,6 +13,8 @@ import numpy as np
 import gzip
 from pathlib import Path
 import matplotlib.pyplot as plt
+import pandas as pd
+from scipy.ndimage import shift
 
 # Name of EMNIST data files
 EMNIST_BALANCED_FILE_NAMES = ["emnist-balanced-train-images-idx3-ubyte.gz",
@@ -22,6 +24,8 @@ EMNIST_BALANCED_FILE_NAMES = ["emnist-balanced-train-images-idx3-ubyte.gz",
 ROW_SIZES = [784, 1, 784, 1]
 
 DATA_PATH = Path().absolute().parent / "data"
+
+FIGURES_PATH = Path().absolute().parent / "figures"
 
 
 def get_data_path():
@@ -63,7 +67,7 @@ def load_label_mapping(data_path=DATA_PATH / "mapping", file_name="emnist-balanc
     return mapping
 
 
-def __plot_character(image_data, plot_axis=False):
+def plot_character(image_data, plot_axis=False):
     """
     Plot a character, this is a private function, please use plot_characters instead
     :param image_data: an array that is a character image
@@ -91,7 +95,7 @@ def plot_characters(image_data, max_no_columns=None, plot_axis=False):
     no_rows = int(np.ceil(no_images / no_columns))
     for idx, image in enumerate(image_data):
         plt.subplot(no_rows, no_columns, idx + 1)
-        __plot_character(image, plot_axis)
+        plot_character(image, plot_axis)
     plt.subplots_adjust(wspace=0, hspace=0)
 
 
@@ -161,3 +165,107 @@ def plot_all_chars(image_data, labels, mapping, max_no_columns=None):
     for char in mapping.values():
         char_idx.append(random_images_idx_of_char(char, labels, mapping, 1))
     plot_characters(image_data[char_idx], max_no_columns)
+
+
+def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
+    """
+    Save figure to figures directory
+    :param fig_id: name of figure
+    :param tight_layout: whether to use tight layout
+    :param fig_extension: extension of figure
+    :param resolution: resolution of figure
+    :return:
+    """
+    path = FIGURES_PATH / (fig_id + "." + fig_extension)
+    print("Saving figure", fig_id)
+    if tight_layout:
+        plt.tight_layout()
+    plt.savefig(path, format=fig_extension, dpi=resolution)
+
+
+def plot_char_distribution(labels, mapping):
+    """
+    Plot distribution of characters in balanced EMNIST dataset
+    :param labels:
+    :param mapping:
+    :return:
+    """
+    char_count = {}
+    for label in labels:
+        char = chr(mapping[label])
+        if char not in char_count:
+            char_count[char] = 0
+        else:
+            char_count[char] += 1
+    char_count = dict(sorted(char_count.items()))
+    plt.bar(char_count.keys(), char_count.values())
+    plt.xlabel("Character")
+    plt.ylabel("Number of images")
+    plt.title("Distribution of characters in balanced EMNIST dataset")
+
+
+def shift_images(images, dx, dy):
+    """
+    Shift image by dx and dy
+    :param images: image that need to be shifted
+    :param dx: shift in x axis
+    :param dy: shift in y axis
+    :return: shifted image
+    """
+    if (images.ndim == 1):
+        images = images.reshape(1, -1)
+
+    shifted_images = []
+    for image in images:
+        image = image.reshape((28, 28))
+        shifted_images.append(shift(image, [dy, dx], cval=0, mode="constant").reshape([-1]))
+    if len(shifted_images) == 1:
+        return np.array(shifted_images[0])
+    else:
+        return np.array(shifted_images)
+
+
+def setup_figure(size=None, xlabel=None, ylabel=None, title=None):
+    if size is not None:
+        plt.figure(figsize=size)
+    if xlabel is not None:
+        plt.xlabel(xlabel)
+    if ylabel is not None:
+        plt.ylabel(ylabel)
+    if title is not None:
+        plt.title(title)
+
+
+def plot_pixel_average_values(images_data):
+    averages_values = sum(list(vector for vector in images_data)) / len(images_data)
+    plt.plot(range(len(averages_values)), averages_values)
+    plt.xlabel("Pixel")
+    plt.ylabel("Average value")
+    plt.title("Average value of pixels")
+
+
+def random_shift_images(images_data, labels, min_dx=-5, max_dx=5, min_dy=-5, max_dy=-5, iter_no=1):
+    """
+    Randomly shift images
+    :param images_data: array of images
+    :param labels: labels of images
+    :param mapping: mapping from label to character
+    :param no_images: number of images that we want to plot
+    :return:
+    """
+    shifted_images = []
+    shifted_labels = []
+    for i in range(iter_no):
+        for image, label in zip(images_data, labels):
+            dx = np.random.randint(min_dx, max_dx)
+            dy = np.random.randint(min_dy, max_dy)
+            shifted_images.append(shift_images(image, dx, dy))
+            shifted_labels.append(label)
+    return np.array(shifted_images), np.array(shifted_labels)
+
+
+
+
+
+
+

@@ -82,3 +82,20 @@ class DataContainer:
     def map_label_to_char(self, y):
         return np.array([chr(self.mapping[label]) for label in y])
 
+    def get_information(self):
+        return f"Train set: {self.X_train.shape[0]} images, {self.X_train.shape[1]} features" + \
+                f"\nTest set: {self.X_test.shape[0]} images, {self.X_test.shape[1]} features" + \
+                f"\nNumber of classes: {len(self.mapping)}" + \
+                f"\nCharacters: {self.char_labels}"
+
+    def plot_char_distribution(self):
+        utils.plot_char_distribution(self.y_train, self.mapping)
+
+    def plot_pixel_average_values(self):
+        utils.plot_pixel_average_values(self.X_train)
+
+    def expand_training_set(self, X, y):
+        self.X_train = np.concatenate((self.X_train, X))
+        self.y_train = np.concatenate((self.y_train, y))
+
+
